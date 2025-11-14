@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ShoppingListData } from '../types';
 
-// FIX: Per the coding guidelines, the API key must be obtained exclusively from `process.env.API_KEY`.
+// FIX: Per coding guidelines, the API key must be retrieved from process.env.API_KEY.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const schema = {
