@@ -1,11 +1,7 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { ShoppingListData } from '../types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set");
-}
-
+// FIX: Per the coding guidelines, the API key must be obtained exclusively from `process.env.API_KEY`.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const schema = {
