@@ -1,7 +1,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ShoppingListData } from '../types';
 
-// FIX: The API key must be obtained from process.env.API_KEY as per the guidelines.
+// FIX: Per coding guidelines, API key must be read from process.env.API_KEY.
+// The original code used import.meta.env.VITE_API_KEY, which caused the TypeScript error
+// and violated the coding guidelines.
+if (!process.env.API_KEY) {
+  // This error will be thrown if the API_KEY is not set in Render.
+  throw new Error("La variabile d'ambiente API_KEY non è stata impostata correttamente nel servizio di hosting (es. Render).");
+}
+
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const schema = {
