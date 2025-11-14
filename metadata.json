@@ -1,0 +1,7 @@
+{
+  "name": "Lista Vocale AI",
+  "description": "Un'app per la lista della spesa intelligente che trasforma il tuo discorso in una lista organizzata e suggerisce ricette e articoli che potresti aver dimenticato. Attivata dalla voce per un'esperienza a mani libere.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
