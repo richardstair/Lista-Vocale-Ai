@@ -1,10 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ShoppingListData } from '../types';
 
-// FIX: Correctly initialize GoogleGenAI using process.env.API_KEY as per guidelines,
-// replacing the Vite-specific environment variable which caused a TypeScript error.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 const schema = {
   type: Type.OBJECT,
   properties: {
@@ -52,7 +48,10 @@ const schema = {
 };
 
 export const generateShoppingList = async (transcript: string): Promise<ShoppingListData> => {
-  // FIX: Refactored to use systemInstruction for better prompt structure.
+  // FIX: Initialize GoogleGenAI with process.env.API_KEY as per the guidelines.
+  // The API key is assumed to be available in the environment.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
   const systemInstruction = `Sei un assistente per la spesa intelligente. Il tuo compito è analizzare la trascrizione del discorso di un utente e compiere tre azioni:
 1. Crea una lista della spesa strutturata. Raggruppa gli articoli in categorie logiche in italiano (es. Frutta e Verdura, Latticini e Formaggi, Carne e Pesce, Prodotti da Forno, Dispensa, Bevande, Casa e Igiene).
 2. Basandoti sugli articoli menzionati, suggerisci 2-3 semplici ricette che l'utente potrebbe preparare. Per ogni ricetta, elenca gli ingredienti principali.
@@ -75,7 +74,10 @@ Rispondi solo con un oggetto JSON valido che segua lo schema fornito.`;
     const data: ShoppingListData = JSON.parse(jsonText);
     return data;
   } catch (error) {
-    console.error("Error calling Gemini API:", error);
-    throw new Error("Failed to generate shopping list from Gemini API.");
+    console.error("Errore durante la chiamata all'API di Gemini:", error);
+    if (error instanceof SyntaxError) {
+        throw new Error("Impossibile interpretare la risposta dal servizio AI.");
+    }
+    throw new Error("Impossibile generare la lista della spesa dal servizio AI.");
   }
 };
