@@ -1,14 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ShoppingListData } from '../types';
 
-// FIX: Per coding guidelines, API key must be read from process.env.API_KEY.
-// The original code used import.meta.env.VITE_API_KEY, which caused the TypeScript error
-// and violated the coding guidelines.
-if (!process.env.API_KEY) {
-  // This error will be thrown if the API_KEY is not set in Render.
-  throw new Error("La variabile d'ambiente API_KEY non è stata impostata correttamente nel servizio di hosting (es. Render).");
-}
-
+// FIX: Correctly initialize GoogleGenAI using process.env.API_KEY as per guidelines,
+// replacing the Vite-specific environment variable which caused a TypeScript error.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const schema = {
@@ -58,22 +52,20 @@ const schema = {
 };
 
 export const generateShoppingList = async (transcript: string): Promise<ShoppingListData> => {
-  const prompt = `
-    Sei un assistente per la spesa intelligente. Il tuo compito è analizzare la seguente trascrizione del discorso di un utente e compiere tre azioni:
-    1. Crea una lista della spesa strutturata. Raggruppa gli articoli in categorie logiche in italiano (es. Frutta e Verdura, Latticini e Formaggi, Carne e Pesce, Prodotti da Forno, Dispensa, Bevande, Casa e Igiene).
-    2. Basandoti sugli articoli menzionati, suggerisci 2-3 semplici ricette che l'utente potrebbe preparare. Per ogni ricetta, elenca gli ingredienti principali.
-    3. Suggerisci 3-5 articoli di uso comune che l'utente potrebbe aver dimenticato, correlati alla sua lista (es. se menziona la pasta, suggerisci parmigiano o sugo per la pasta se non già in lista).
+  // FIX: Refactored to use systemInstruction for better prompt structure.
+  const systemInstruction = `Sei un assistente per la spesa intelligente. Il tuo compito è analizzare la trascrizione del discorso di un utente e compiere tre azioni:
+1. Crea una lista della spesa strutturata. Raggruppa gli articoli in categorie logiche in italiano (es. Frutta e Verdura, Latticini e Formaggi, Carne e Pesce, Prodotti da Forno, Dispensa, Bevande, Casa e Igiene).
+2. Basandoti sugli articoli menzionati, suggerisci 2-3 semplici ricette che l'utente potrebbe preparare. Per ogni ricetta, elenca gli ingredienti principali.
+3. Suggerisci 3-5 articoli di uso comune che l'utente potrebbe aver dimenticato, correlati alla sua lista (es. se menziona la pasta, suggerisci parmigiano o sugo per la pasta se non già in lista).
 
-    Trascrizione dell'utente: "${transcript}"
-
-    Rispondi solo con un oggetto JSON valido che segua lo schema fornito.
-  `;
+Rispondi solo con un oggetto JSON valido che segua lo schema fornito.`;
 
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: prompt,
+      contents: transcript,
       config: {
+        systemInstruction,
         responseMimeType: "application/json",
         responseSchema: schema,
       },
